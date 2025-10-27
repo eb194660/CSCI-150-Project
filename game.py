@@ -53,25 +53,32 @@ print(purchase_item(item_price = 100, starting_money = int(my_monster["money"]),
 def user_battle():
     user_health = 10
     bruno_health = 10
+    all_damage = 5
+    user_gold = 10
     print("You have chosen to enter into battle")
     print("With each perfected samba roll, you decrease your opponents health by 5.")
-    print("You can 3)samba roll or 4)chasse away :")
-    user_action = input()
 
-    while user_action == 3:
-        print("You nailed that samba, Bruno health -5")
-        health_bruno = health_bruno - 5
-        print("Bruno got you back with a quick-step, your health -5")
-        health_user = health_user - 5
-        if health_bruno >= 0:
-            print ("You won and Bruno lost! Congrats!")
-            town_start()
+    while user_health > 0 and bruno_health > 0:
+        user_action = input("You can 3)samba roll or 4)chasse away :")
 
-    while user_action == 4:
-        print("Better luck next time")
-        town_start()
+        if user_action == "3":
+            user_health -= all_damage
+            bruno_health -= all_damage
+
+        elif user_action == "4":
+            print("Better luck next time, you chassed away.")
+            break
+
+        else:
+            print("Unrecognized command, You can 3)samba roll or 4)chasse away")
+
+    if user_health <= 0:
+        print("You passed out on the dance floor :(")
         
-    
+        
+    if bruno_health <= 0:
+        user_gold += 3
+        
 
     
     
