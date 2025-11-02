@@ -55,17 +55,19 @@ def user_battle():
             print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
 
         elif user_action == "2":
-            if "waltz" in user_inventory:
-                pro_energy -= 2
-                del user_inventory["move"]
-                print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
+            print(user_inventory)
+            for key, value in user_inventory:
+                if "waltz" in "move":
+                    pro_energy -= 2
+                    del user_inventory[0]
+                    print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
 
-            elif "jazz" in user_inventory:
-                pro_energy = 0
-                del user_inventory["move"]
-                user_stats["sparkle"] += 3
-                print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
-                town_start()
+                elif "jazz" in "move":
+                    pro_energy = 0
+                    del user_inventory[0]
+                    user_stats["sparkle"] += 3
+                    print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
+                    town_start()
 
             else:
                 print("You do not have special items. Go to store to purchase them.")
@@ -117,7 +119,7 @@ def town_start():
     elif user_choice_int == 3:
         train_inventory = [
             {"move" : "waltz", "type" : "dance", "max_uses" : 1, "damage_inflicted" : 2},
-            {"move" : "jazz", "type" : "dance", "max_uses" : 1, "note" : "defeats the pros"}
+            {"move" : "jazz", "type" : "dance", "max_uses" : 1, "damage_inflicted" : "total"}
             ]
         print_shop_menu(item1Name= "waltz", item1Price=100, item2Name = "jazz", item2Price=300)
         print("Type item name to select, or studio to return back to the studio")
