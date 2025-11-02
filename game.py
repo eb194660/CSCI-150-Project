@@ -4,11 +4,13 @@
 
 """Imports gamefunctions.py and uses those functions to create a user-engaging game.
 
-Function town_start_loop is the main page loop.The user can either fight, sleep, or quit. If fight is chosen,
-user_battle_loop is started and ends when the user flees or dies, return user to the town_start_loop.
+Function town_start is the main page loop.The user can either fight, sleep, shop, or quit. If fight is chosen,
+user_battle_loop is started and ends when the user flees or dies, return user to the town_start loop.
 """
 
 from gamefunctions import *
+user_stats = {"energy" : 15, "sparkle" : 350}
+user_inventory = []
 
 #first, welcoming the user with print_welcome funtion
 user_name = input("What is your name?:")
@@ -25,42 +27,48 @@ print("Your partner is the . . .")
 print(my_monster["name"])
 print()
 print("Here is a little more information . . .")
-print(f"energy: {my_monster["health"]}")
-print(f"sparkle: {my_monster["money"]}")
+print(f"energy: {user_stats["energy"]}")
+print(f"sparkle: {user_stats["sparkle"]}")
 print(f"signature move: {my_monster["power"]}")
 print()
 
 #loops section starts, main loop and fight scene loops
 
 def user_battle():
-    user_health = my_monster["health"]
-    user_money = my_monster["money"]
-    pro_health = 10
+    """User fights against pro until one wins.
+    Energy is decreased exchangablym witht he option to use invientory items or flee.
+    The returns user to town_start."""
+    
+    user_energy = user_stats["energy"]
+    user_sparkle = user_stats["sparkle"]
+    pro_energy = 10
     all_damage = 5
     print("You have chosen to enter into a ballroom dance battle with the pros")
     print("With each perfected samba roll, you decrease the pro's energy by 5, and they do the same to you.")
 
-    while user_health > 0 and pro_health > 0:
+    while user_stats["energy"] > 0 and pro_energy > 0:
         user_action = input("You can 1)samba roll  2)use special item 3)chassé away :")
 
         if user_action == "1":
-            user_health -= all_damage
-            pro_health -= all_damage
-            print(f"Pro's energy: {pro_health} Your energy: {user_health}")
+            user_stats["energy"] -= all_damage
+            pro_energy -= all_damage
+            print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
 
         elif user_action == "2":
-            if user_inventory == "waltz":
-                pro_health -= 2
-                print(f"Pro's energy: {pro_health} Your energy: {user_health}")
+            if "waltz" in user_inventory:
+                pro_energy -= 2
+                del user_inventory["move"]
+                print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
 
-            elif user_inventory == "jazz":
-                pro_health = 0
+            elif "jazz" in user_inventory:
+                pro_energy = 0
+                del user_inventory["move"]
+                user_stats["sparkle"] += 3
+                print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
+                town_start()
 
             else:
                 print("You do not have special items. Go to store to purchase them.")
-                user_battle()
-                
-        
 
         elif user_action == "3":
             print("Better luck next time, you chassed away.")
@@ -68,49 +76,45 @@ def user_battle():
             
 
         else:
-            print("Unrecognized command, You can 3)samba roll or 4)chasse away")
+            print("Unrecognized command, You can 3)samba roll 2)use special item 4)chasse away")
 
-    if user_health <= 0:
+    if user_energy <= 0:
         print("You passed out on the dance floor :(")
         town_start()
         
-    if pro_health <= 0:
-        user_money += 3
-        print(f"You have bested the Pros! Your sparkle: {user_money}")
+    if pro_energy <= 0:
+        user_stats["sparkle"] += 3
+        print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
         town_start()
 
-    
-    
+
 def town_start():
     """Prints the home page as the main loop"""
-    user_health = my_monster["health"]
-    user_money = my_monster["money"]
     print()
     print("You are in the studio.")
-    print(f"Current energy: {user_health}, Current sparkle: {user_money}")
+    print(f"Current energy: {user_stats["energy"]}, Current sparkle: {user_stats["sparkle"]}")
     print("What would you like to do?")
     print(f"1) Leave town (ballroom battle)")
     print(f"2) Sleep (Restore energy for 5 sparkles)")
     print(f"3) Train (new moves for battle)")
     print(f"4) Quit")
     print()
-    user_choice = input("What do you choose?:")
-    user_choice_int = int(user_choice)
-
-    if 1 < user_choice_int > 4:
-        print("That is not an option, please choose 1, 2, or 3.")
-        town_start()
-
-    elif user_choice_int == 1:
-       user_battle()
-
+    print("What do you choose?:")
+    user_choice_int = int(input())
+    
+    if user_choice_int == 1:
+        user_battle()
+        
     elif user_choice_int == 2:
-        user_health = my_monster["health"] +5
-        print("Your energy is:", user_health)
+        user_stats["energy"] += 5
+        print(f"Your energy is: {user_stats["energy"]}")
         town_start()
+
+    elif user_choice_int == 4:
+        return None
+            
 
     elif user_choice_int == 3:
-        user_inventory = []
         train_inventory = [
             {"move" : "waltz", "type" : "dance", "max_uses" : 1, "damage_inflicted" : 2},
             {"move" : "jazz", "type" : "dance", "max_uses" : 1, "note" : "defeats the pros"}
@@ -118,37 +122,37 @@ def town_start():
         print_shop_menu(item1Name= "waltz", item1Price=100, item2Name = "jazz", item2Price=300)
         print("Type item name to select, or studio to return back to the studio")
         user_train = input()
-        
+            
         if user_train == "waltz":
-            user_money = my_monster["money"] - 100
+            user_stats["sparkle"] -= 100
             user_inventory.append(train_inventory[0])
             print("You are now able to use the following in battle:")
             print(user_inventory)
-            print(f"Your remaining sparkles: {my_monster["money"]}")
-            
-            town_start()
-
+            print(f"Your remaining sparkles: {user_stats["sparkle"]}")
+            return town_start()
+                
         elif user_train == "jazz":
-            user_money = my_monster["money"] - 300
-            user_inventory.append(train_inventory[1])
+            user_stats["sparkle"] -= 300
+            user_inventory.append(train_inventory[1])                
             print("You are now able to use the following in battle:")
             print(user_inventory)
-            print(f"Your remaining sparkles: {my_monster["money"]}")
-            town_start()
-            
+            print(f"Your remaining sparkles: {user_stats["sparkle"]}")
+            return town_start()
+                
         elif user_train == "studio":
-            town_start()
+            return town_start()
 
         else:
             print("Unregistered command")
-            town_start()
+            return town_start()
+                
+    if user_choice_int > 4:
+        print("That is not an option, please choose 1, 2, 3, or 4.")
+        return town_start()
 
-    elif user_choice_int == 4:
-        return None
-
-    else:
-        print("Unrecognized command. Please choose 1, 2, or 3.")
-        town_start()
+    elif user_choice_int <= 0:
+        print("That is not an option, please choose 1, 2, 3, or 4.")
+        return town_start()
 
         
 
