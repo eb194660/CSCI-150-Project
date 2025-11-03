@@ -32,7 +32,60 @@ print(f"sparkle: {user_stats["sparkle"]}")
 print(f"signature move: {my_monster["power"]}")
 print()
 
-#loops section starts, main loop and fight scene loops
+def user_shopping():
+    """Allows user to purchase inventory items"""
+    train_inventory = [
+        {"move" : "waltz", "type" : "dance", "max_uses" : 1, "damage_inflicted" : 2},
+        {"move" : "jazz", "type" : "dance", "max_uses" : 1, "damage_inflicted" : "total"}
+        ]
+    print_shop_menu(item1Name= "waltz", item1Price=100, item2Name = "jazz", item2Price=300)
+    print("Type item name to select, or studio to return back to the studio")
+    user_train = input()
+                
+    if user_train == "waltz":
+        user_stats["sparkle"] -= 100
+        user_inventory.append(train_inventory[0])
+        print("You are now able to use the following in battle:")
+        print(user_inventory)
+        print(f"Your remaining sparkles: {user_stats["sparkle"]}")
+            
+                
+    elif user_train == "jazz":
+        user_stats["sparkle"] -= 300
+        user_inventory.append(train_inventory[1])                
+        print("You are now able to use the following in battle:")
+        print(user_inventory)
+        print(f"Your remaining sparkles: {user_stats["sparkle"]}")
+
+    elif user_train == "studio":
+        town_start()
+
+    else:
+        print("Unregistered command")
+        town_start()
+
+def use_special_item():
+    """user selects special item to be used in battle"""
+    print(user_inventory)
+    user_in_use = input("What item would you like to use? 1) waltz 2) jazz:")
+    if user_in_use == "1":
+        for item in user_inventory:
+             if item["move"] == "waltz":
+                    pro_energy -= 2
+                    del user_inventory[0]
+                    print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
+
+    elif user_in_use == "2":
+        for item in user_inventory:
+            if item["move"] == "jazz":
+                    pro_energy = 0
+                    del user_inventory[0]
+                    user_stats["sparkle"] += 3
+                    print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
+                    town_start()
+
+    else:
+        print("You do not have special items. Go to store to purchase them.")
 
 def user_battle():
     """User fights against pro until one wins.
@@ -55,22 +108,7 @@ def user_battle():
             print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
 
         elif user_action == "2":
-            print(user_inventory)
-            for key, value in user_inventory:
-                if "waltz" in "move":
-                    pro_energy -= 2
-                    del user_inventory[0]
-                    print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
-
-                elif "jazz" in "move":
-                    pro_energy = 0
-                    del user_inventory[0]
-                    user_stats["sparkle"] += 3
-                    print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
-                    town_start()
-
-            else:
-                print("You do not have special items. Go to store to purchase them.")
+            use_special_item()
 
         elif user_action == "3":
             print("Better luck next time, you chassed away.")
@@ -90,8 +128,8 @@ def user_battle():
         town_start()
 
 
-def town_start():
-    """Prints the home page as the main loop"""
+def town_choices():
+    """prints town welcome and options"""
     print()
     print("You are in the studio.")
     print(f"Current energy: {user_stats["energy"]}, Current sparkle: {user_stats["sparkle"]}")
@@ -102,61 +140,32 @@ def town_start():
     print(f"4) Quit")
     print()
     print("What do you choose?:")
-    user_choice_int = int(input())
+
+def town_start():
+    """Prints the home page as the main loop"""
+    choice = "r"
+
+    while choice != "q":
+        town_choices()
+        user_choice_int = int(input())
     
-    if user_choice_int == 1:
-        user_battle()
-        
-    elif user_choice_int == 2:
-        user_stats["energy"] += 5
-        print(f"Your energy is: {user_stats["energy"]}")
-        town_start()
-
-    elif user_choice_int == 4:
-        return None
+        if user_choice_int == 1:
+            user_battle()
             
+        elif user_choice_int == 2:
+            user_stats["energy"] += 5
+            print(f"Your energy is: {user_stats["energy"]}")
+            town_start()
 
-    elif user_choice_int == 3:
-        train_inventory = [
-            {"move" : "waltz", "type" : "dance", "max_uses" : 1, "damage_inflicted" : 2},
-            {"move" : "jazz", "type" : "dance", "max_uses" : 1, "damage_inflicted" : "total"}
-            ]
-        print_shop_menu(item1Name= "waltz", item1Price=100, item2Name = "jazz", item2Price=300)
-        print("Type item name to select, or studio to return back to the studio")
-        user_train = input()
+        elif user_choice_int == 3:
+            user_shopping()
             
-        if user_train == "waltz":
-            user_stats["sparkle"] -= 100
-            user_inventory.append(train_inventory[0])
-            print("You are now able to use the following in battle:")
-            print(user_inventory)
-            print(f"Your remaining sparkles: {user_stats["sparkle"]}")
-            return town_start()
-                
-        elif user_train == "jazz":
-            user_stats["sparkle"] -= 300
-            user_inventory.append(train_inventory[1])                
-            print("You are now able to use the following in battle:")
-            print(user_inventory)
-            print(f"Your remaining sparkles: {user_stats["sparkle"]}")
-            return town_start()
-                
-        elif user_train == "studio":
-            return town_start()
-
+        elif user_choice_int == 4:
+            break
+                    
         else:
-            print("Unregistered command")
-            return town_start()
-                
-    if user_choice_int > 4:
-        print("That is not an option, please choose 1, 2, 3, or 4.")
-        return town_start()
-
-    elif user_choice_int <= 0:
-        print("That is not an option, please choose 1, 2, 3, or 4.")
-        return town_start()
-
-        
+            print("That is not an option, please choose 1, 2, 3, or 4.")
+            
 
 town_start()
 
