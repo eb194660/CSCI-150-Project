@@ -9,28 +9,8 @@ user_battle_loop is started and ends when the user flees or dies, return user to
 """
 
 from gamefunctions import *
-user_stats = {"energy" : 15, "sparkle" : 350}
-user_inventory = []
+import json
 
-#first, welcoming the user with print_welcome funtion
-user_name = input("What is your name?:")
-print()
-print_welcome(name = user_name, width = 40)
-print()
-
-#second, assigning user a random monster using new_random_monster_function
-my_monster = new_random_monster()
-print("You have been chosen to compete on this season's Dancing with the Stars!")
-print(my_monster["description"])
-print()
-print("Your partner is the . . .")
-print(my_monster["name"])
-print()
-print("Here is a little more information . . .")
-print(f"energy: {user_stats["energy"]}")
-print(f"sparkle: {user_stats["sparkle"]}")
-print(f"signature move: {my_monster["power"]}")
-print()
 
 def user_shopping():
     """Allows user to purchase inventory items"""
@@ -41,28 +21,48 @@ def user_shopping():
     print_shop_menu(item1Name= "waltz", item1Price=100, item2Name = "jazz", item2Price=300)
     print("Type item name to select, or studio to return back to the studio")
     user_train = input()
+
+
+    if user_stats["sparkle"] >= 300:
+        
+        if user_train == "waltz":
+            user_stats["sparkle"] -= 100
+            user_inventory.append(train_inventory[0])
+            print("You are now able to use the following in battle:")
+            print(user_inventory)
+            print(f"Your remaining sparkles: {user_stats["sparkle"]}")
                 
-    if user_train == "waltz":
-        user_stats["sparkle"] -= 100
-        user_inventory.append(train_inventory[0])
-        print("You are now able to use the following in battle:")
-        print(user_inventory)
-        print(f"Your remaining sparkles: {user_stats["sparkle"]}")
+        elif user_train == "jazz":
+            user_stats["sparkle"] -= 300
+            user_inventory.append(train_inventory[1])                
+            print("You are now able to use the following in battle:")
+            print(user_inventory)
+            print(f"Your remaining sparkles: {user_stats["sparkle"]}")
+
+        elif user_train == "studio":
+            town_start()
+
+        else:
+            print("unregistered command")
             
-                
-    elif user_train == "jazz":
-        user_stats["sparkle"] -= 300
-        user_inventory.append(train_inventory[1])                
-        print("You are now able to use the following in battle:")
-        print(user_inventory)
-        print(f"Your remaining sparkles: {user_stats["sparkle"]}")
+    elif 299 <= user_stats["sparkle"] >= 100:
+        
+        if user_train == "waltz":
+            user_stats["sparkle"] -= 100
+            user_inventory.append(train_inventory[0])
+            print("You are now able to use the following in battle:")
+            print(user_inventory)
+            print(f"Your remaining sparkles: {user_stats["sparkle"]}")
 
-    elif user_train == "studio":
-        town_start()
+        elif user_train == "jazz":
+            print("You do not have enough sparkle. Rest or win dance battles to get more sparkle.")
+            
+        elif user_train == "studio":
+            town_start()
 
-    else:
-        print("Unregistered command")
-        town_start()
+        else:
+            print("unregistered command")
+
 
 def use_special_item():
     """user selects special item to be used in battle"""
@@ -128,8 +128,23 @@ def user_battle():
         town_start()
 
 
+def town_welcome():
+    """prints town welcome"""
+    my_monster = new_random_monster()
+    print("You have been chosen to compete on this season's Dancing with the Stars!")
+    print(my_monster["description"])
+    print()
+    print("Your partner is the . . .")
+    print(my_monster["name"])
+    print()
+    print("Here is a little more information . . .")
+    print(f"energy: {user_stats["energy"]}")
+    print(f"sparkle: {user_stats["sparkle"]}")
+    print(f"signature move: {my_monster["power"]}")
+    print()
+    
 def town_choices():
-    """prints town welcome and options"""
+    """prints town options"""
     print()
     print("You are in the studio.")
     print(f"Current energy: {user_stats["energy"]}, Current sparkle: {user_stats["sparkle"]}")
@@ -137,7 +152,7 @@ def town_choices():
     print(f"1) Leave town (ballroom battle)")
     print(f"2) Sleep (Restore energy for 5 sparkles)")
     print(f"3) Train (new moves for battle)")
-    print(f"4) Quit")
+    print(f"4) Save and Quit")
     print()
     print("What do you choose?:")
 
@@ -161,13 +176,52 @@ def town_start():
             user_shopping()
             
         elif user_choice_int == 4:
-            break
+            user_stats_json = json.dumps(user_stats)
+            user_inventory_json = json.dumps(user_inventory)
+            print("Your progress has been saved. See you next time in the studio.")
+
+            with open("progress_stats", "w") as progressfile:
+                progressfile.write(user_stats_json)
+                
+            with open("progress_inventory", "w") as progressfile:
+                progressfile.write(user_inventory_json)
+            break #breaks town loop and exits user from game
+                
+            
                     
         else:
             print("That is not an option, please choose 1, 2, 3, or 4.")
-            
 
-town_start()
+#starts user interface
+
+user_name = input("What is your name?:")
+print()
+print_welcome(name = user_name, width = 40)
+print()
+
+user_data = input("Would you like to start a new project(1) or resume(2)?: ")
+choice = "r"
+if user_data == "1":
+    user_stats = {"energy" : 15, "sparkle" : 350}
+    user_inventory = []
+    town_welcome()
+    town_start()
+
+elif user_data == "2":
+    with open("progress_stats", "r") as progressfile:
+        user_stats_convert = json.loads(progressfile.read())
+        user_stats = user_stats_convert
+
+    with open("progress_inventory", "r") as progressfile:
+        user_inventory_convert = json.loads(progressfile.read())
+        user_inventory = user_inventory_convert
+        
+    town_start()
+
+else:
+    print("unregistered command")
+                    
+                    
 
     
 
