@@ -70,32 +70,32 @@ def new_random_monster():
     value = random.randint(1,4)
     
     if value == 1:
-        name = "kermit"
-        description = "This is the wild kermit that feeds off the fear of missing a sale on athletic wear."
+        name = "Gleb"
+        description = "Gleb is a three time mirror ball champion."
         health = 10
         money = 800
-        power = "singing"
+        power = "samba"
         
     elif value == 2:
-        name = "hulk"
-        description = "So unfortunate ... you have come across the hulk!!!!!!! AHHHHHHHH!!!!!"
+        name = "Val"
+        description = "Known for pushing his partners to sucess!"
         health = 9
         money = 500
-        power = "smash"
+        power = "choreography"
         
     elif value == 3:
-        name = "shrek"
-        description = "Watch out! The stinky shrek has crossed your path."
+        name = "Pasha"
+        description = "The silent winner."
         health = 12
         money = 15
-        power = "stink"
+        power = "lifts"
 
     elif value == 4:
-        name = "grinch"
-        description = "The grinch is running toward you! Don't let him steal your Christmas joy!"
+        name = "Jan"
+        description = "The new pro that is steeling the show!"
         health = 15
         money = 300
-        power = "snarling"
+        power = "spins"
 
     return {"name": name, "description": description, "health": health, "money": money, "power": power}
 
