@@ -10,7 +10,11 @@ user_battle_loop is started and ends when the user flees or dies, return user to
 
 from gamefunctions import *
 import json
-
+import math
+import pygame
+import time
+    
+    
 
 def user_shopping():
     """Allows user to purchase inventory items"""
@@ -88,10 +92,11 @@ def use_special_item():
         print("You do not have special items. Go to store to purchase them.")
 
 def user_battle():
-    """User fights against pro until one wins.
-    Energy is decreased exchangablym witht he option to use invientory items or flee.
+    """User is taken to map. If user choses green circle, they are returned to the towm,
+    or the red circle they fight against pro until one wins.
+    Energy is decreased exchangably with the option to use invientory items or flee.
     The returns user to town_start."""
-    
+
     user_energy = user_stats["energy"]
     user_sparkle = user_stats["sparkle"]
     pro_energy = 10
@@ -112,6 +117,7 @@ def user_battle():
 
         elif user_action == "3":
             print("Better luck next time, you chassed away.")
+            break #ends battle loop
             town_start()
             
 
@@ -126,7 +132,61 @@ def user_battle():
         user_stats["sparkle"] += 3
         print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
         town_start()
+        
+def battle_map():
+    print("The green circle returns you to the studio. The red circle takes you to the dance competition.")
+    time.sleep(.5)
+    pygame.init()
 
+    SCREEN_WIDTH = 800
+    SCREEN_HEIGHT = 600
+
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    player = pygame.Rect(0,0,32,32)
+    redcollision = pygame.Rect(60,345,50,50)
+    greencollision = pygame.Rect(345,60,50,50)
+    playerspeed = 3
+
+    mask_surface = pygame.Surface((50,50))
+
+    running = True
+    while running:
+        
+        screen.fill((0,0,0))
+        pygame.draw.rect(screen, (0,0,0), redcollision)
+        pygame.draw.rect(screen, (0,0,0), greencollision)
+        pygame.draw.rect(screen, (128, 128, 128), player)
+        pygame.draw.circle(screen, (255, 0, 0), (80, 375), 20)
+        pygame.draw.circle(screen, (0, 255, 0), (375, 80), 20)
+        
+
+        key = pygame.key.get_pressed()
+        if key[pygame.K_UP]:
+            player.move_ip(0, -playerspeed)
+        elif key[pygame.K_DOWN]:
+            player.move_ip(0, playerspeed)
+        elif key[pygame.K_LEFT]:
+            player.move_ip(-playerspeed, 0)
+        elif key[pygame.K_RIGHT]:
+            player.move_ip(playerspeed, 0)
+
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        if player.colliderect(greencollision):
+            running = False
+            town_start()
+
+        elif player.colliderect(redcollision):
+            running = False
+            user_battle()
+            
+        pygame.display.update()
+        time.sleep(.01)
+    pygame.quit()
+    
 
 def town_welcome():
     """prints town welcome"""
@@ -165,7 +225,7 @@ def town_start():
         user_choice_int = int(input())
     
         if user_choice_int == 1:
-            user_battle()
+            battle_map()
             
         elif user_choice_int == 2:
             user_stats["energy"] += 5
@@ -185,7 +245,7 @@ def town_start():
                 
             with open("progress_inventory", "w") as progressfile:
                 progressfile.write(user_inventory_json)
-            break #breaks town loop and exits user from game
+                break #breaks town loop and exits user from game
                 
             
                     
