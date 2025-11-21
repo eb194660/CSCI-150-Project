@@ -98,12 +98,15 @@ def user_battle():
     Energy is decreased exchangably with the option to use invientory items or flee.
     The returns user to town_start."""
 
+    Wandering_monster = WanderingMonster()
     user_energy = user_stats["energy"]
     user_sparkle = user_stats["sparkle"]
-    pro_energy = 10
+    pro_energy = Wandering_monster.new_random_judge(energy)
+    pro_name = Wandering_monster.new_random_judge(name)
+    pro_color = Wandering_monster.new_random_judge(value)
     all_damage = 5
-    print("You have chosen to enter into a ballroom dance battle with the pros")
-    print("With each perfected samba roll, you decrease the pro's energy by 5, and they do the same to you.")
+    print(f"You have entered into a ballroom dance battle with judge {pro_name} shown in {pro_color}.{pro_name}'s energy: {pro_energy}.")
+    print("With each perfected samba roll, you decrease {pro_name}'s energy by 5, and they do the same to you.")
 
     while user_stats["energy"] > 0 and pro_energy > 0:
         user_action = input("You can 1)samba roll  2)use special item 3)chassé away :")
@@ -111,7 +114,7 @@ def user_battle():
         if user_action == "1":
             user_stats["energy"] -= all_damage
             pro_energy -= all_damage
-            print(f"Pro's energy: {pro_energy} Your energy: {user_stats["energy"]}")
+            print(f"{pro_name}'s energy: {pro_energy} Your energy: {user_stats["energy"]}")
 
         elif user_action == "2":
             use_special_item()
@@ -131,7 +134,7 @@ def user_battle():
         
     if pro_energy <= 0:
         user_stats["sparkle"] += 3
-        print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
+        print(f"You have bested {pro_name}! Your sparkle: {user_stats["sparkle"]}")
         town_start()
         
 def battle_map():
@@ -148,42 +151,65 @@ def battle_map():
     redcollision = pygame.Rect(60,345,50,50)
     greencollision = pygame.Rect(345,60,50,50)
     playerspeed = 3
-
     mask_surface = pygame.Surface((50,50))
-
+    monster1 = WanderingMonster.new_random_judge()
+    monster2 = WanderingMonster.new_random_judge()
+    
     running = True
     while running:
-        WanderingMonster(monster_map_moves())
         
         screen.fill((0,0,0))
-        pygame.draw.rect(screen, (0,0,0), redcollision)
         pygame.draw.rect(screen, (0,0,0), greencollision)
         pygame.draw.rect(screen, (128, 128, 128), player)
         pygame.draw.circle(screen, (255, 0, 0), (80, 375), 20)
         pygame.draw.circle(screen, (0, 255, 0), (375, 80), 20)
+        pygame.draw.circle(screen, monster1(color), monster1(location))
+        pygame.draw.circle(screen, monster2(color), monster2(location))
         
 
         key = pygame.key.get_pressed()
+        key_press_count = 0
         if key[pygame.K_UP]:
             player.move_ip(0, -playerspeed)
+            key_press_count += 1
+
         elif key[pygame.K_DOWN]:
             player.move_ip(0, playerspeed)
+            key_press_count += 1
+                
         elif key[pygame.K_LEFT]:
             player.move_ip(-playerspeed, 0)
+            key_press_count += 1
+               
         elif key[pygame.K_RIGHT]:
             player.move_ip(playerspeed, 0)
+            key_press_count += 1
 
-
+        if key_press_count % 2 == 0:
+            WanderingMonster.monster_map_moves(self)
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                
         if player.colliderect(greencollision):
             running = False
             town_start()
+            pygame.quit()
 
-        elif player.colliderect(redcollision):
+        elif player.colliderect(monster1):
             running = False
             user_battle()
+
+        elif player.colliderect(monster2):
+            running = False
+            user_battle()
+
+        if monster1(energy) == 0:
+            monster1 = WanderingMonster.new_random_judge()
+
+        elif monster2(energy) == 0:
+            monster2 = WanderingMonster.new_random_judge()
             
         pygame.display.update()
         time.sleep(.01)
