@@ -9,6 +9,7 @@ user_battle_loop is started and ends when the user flees or dies, return user to
 """
 
 from gamefunctions import *
+from wanderingMonster import *
 import json
 import math
 import pygame
@@ -152,6 +153,7 @@ def battle_map():
 
     running = True
     while running:
+        WanderingMonster(monster_map_moves())
         
         screen.fill((0,0,0))
         pygame.draw.rect(screen, (0,0,0), redcollision)
