@@ -120,8 +120,8 @@ def user_battle():
 
         elif user_action == "3":
             print("Better luck next time, you chassed away.")
-            break #ends battle loop
             town_start(user_stats)
+            break #ends battle loop
             
 
         else:
@@ -173,15 +173,19 @@ def battle_map(game_stats):
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
+                    monsters[0].move()
                     if user_stats["location"][1] > 0:
                         user_stats["location"][1] -= 1
                 elif event.key == pygame.K_DOWN:
+                    monsters[0].move()
                     if user_stats["location"][1] < 9:
                         user_stats["location"][1] += 1
                 elif event.key == pygame.K_LEFT:
+                    monsters[1].move()
                     if user_stats["location"][0] > 0:
                         user_stats["location"][0] -= 1
                 elif event.key == pygame.K_RIGHT:
+                    monsters[1].move()
                     if user_stats["location"][0] < 9:
                         user_stats["location"][0] += 1
                 
