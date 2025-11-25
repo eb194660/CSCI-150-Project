@@ -97,16 +97,15 @@ def user_battle():
     or the red circle they fight against pro until one wins.
     Energy is decreased exchangably with the option to use invientory items or flee.
     The returns user to town_start."""
-
     Wandering_monster = WanderingMonster()
     user_energy = user_stats["energy"]
     user_sparkle = user_stats["sparkle"]
-    pro_energy = Wandering_monster.new_random_judge(energy)
-    pro_name = Wandering_monster.new_random_judge(name)
-    pro_color = Wandering_monster.new_random_judge(value)
+    pro_energy = Wandering_monster.energy
+    pro_name = Wandering_monster.name
+    pro_color = Wandering_monster.value
     all_damage = 5
     print(f"You have entered into a ballroom dance battle with judge {pro_name} shown in {pro_color}.{pro_name}'s energy: {pro_energy}.")
-    print("With each perfected samba roll, you decrease {pro_name}'s energy by 5, and they do the same to you.")
+    print(f"With each perfected samba roll, you decrease {pro_name}'s energy by 5, and they do the same to you.")
 
     while user_stats["energy"] > 0 and pro_energy > 0:
         user_action = input("You can 1)samba roll  2)use special item 3)chassé away :")
@@ -122,7 +121,7 @@ def user_battle():
         elif user_action == "3":
             print("Better luck next time, you chassed away.")
             break #ends battle loop
-            town_start()
+            town_start(user_stats)
             
 
         else:
@@ -130,87 +129,72 @@ def user_battle():
 
     if user_energy <= 0:
         print("You passed out on the dance floor :(")
-        town_start()
+        town_start(user_stats)
         
     if pro_energy <= 0:
         user_stats["sparkle"] += 3
         print(f"You have bested {pro_name}! Your sparkle: {user_stats["sparkle"]}")
-        town_start()
+        town_start(user_stats)
+
+def coordinate_to_pixel(coordinates):
+    return coordinates[0] * 32, coordinates[1] * 32
         
-def battle_map():
-    print("The green circle returns you to the studio. The red circle takes you to the dance competition.")
+def battle_map(game_stats):
+    print("The green circle returns you to the studio. The other circles are pros and will take you to the dance competition.")
     time.sleep(.5)
     pygame.init()
 
-    SCREEN_WIDTH = 800
-    SCREEN_HEIGHT = 600
+    SCREEN_WIDTH = 320
+    SCREEN_HEIGHT = 320
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    player = pygame.Rect(0,0,32,32)
-    redcollision = pygame.Rect(60,345,50,50)
-    greencollision = pygame.Rect(345,60,50,50)
-    playerspeed = 3
+    player = pygame.Rect(32* game_stats["location"][0],32* game_stats["location"][1],32,32)
     mask_surface = pygame.Surface((50,50))
-    monster1 = WanderingMonster.new_random_judge()
-    monster2 = WanderingMonster.new_random_judge()
+    monsters = []
+    town = (300, 300)
     
     running = True
     while running:
-        
+        if len(monsters) == 0:
+            monsters.append(WanderingMonster())
+            monsters.append(WanderingMonster())
         screen.fill((0,0,0))
-        pygame.draw.rect(screen, (0,0,0), greencollision)
+        player.update(coordinate_to_pixel(game_stats["location"]), (32, 32))
         pygame.draw.rect(screen, (128, 128, 128), player)
-        pygame.draw.circle(screen, (255, 0, 0), (80, 375), 20)
-        pygame.draw.circle(screen, (0, 255, 0), (375, 80), 20)
-        pygame.draw.circle(screen, monster1(color), monster1(location))
-        pygame.draw.circle(screen, monster2(color), monster2(location))
-        
+        pygame.draw.circle(screen, (0, 255, 0), town, 20)
+        for monster in monsters:
+            pygame.draw.circle(screen, monster.color, coordinate_to_pixel(monster.location), 20)
+  
 
-        key = pygame.key.get_pressed()
-        key_press_count = 0
-        if key[pygame.K_UP]:
-            player.move_ip(0, -playerspeed)
-            key_press_count += 1
-
-        elif key[pygame.K_DOWN]:
-            player.move_ip(0, playerspeed)
-            key_press_count += 1
-                
-        elif key[pygame.K_LEFT]:
-            player.move_ip(-playerspeed, 0)
-            key_press_count += 1
-               
-        elif key[pygame.K_RIGHT]:
-            player.move_ip(playerspeed, 0)
-            key_press_count += 1
-
-        if key_press_count % 2 == 0:
-            WanderingMonster.monster_map_moves(self)
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    if user_stats["location"][1] > 0:
+                        user_stats["location"][1] -= 1
+                elif event.key == pygame.K_DOWN:
+                    if user_stats["location"][1] < 9:
+                        user_stats["location"][1] += 1
+                elif event.key == pygame.K_LEFT:
+                    if user_stats["location"][0] > 0:
+                        user_stats["location"][0] -= 1
+                elif event.key == pygame.K_RIGHT:
+                    if user_stats["location"][0] < 9:
+                        user_stats["location"][0] += 1
                 
-        if player.colliderect(greencollision):
-            running = False
-            town_start()
+        if user_stats["location"] == monsters[0].location:
+            del monsters[0]
+            user_battle()
+        elif user_stats["location"] == monsters[1].location:
+            del monsters[1]
+            user_battle()
+        elif user_stats["location"] == [9, 9]:
             pygame.quit()
-
-        elif player.colliderect(monster1):
-            running = False
-            user_battle()
-
-        elif player.colliderect(monster2):
-            running = False
-            user_battle()
-
-        if monster1(energy) == 0:
-            monster1 = WanderingMonster.new_random_judge()
-
-        elif monster2(energy) == 0:
-            monster2 = WanderingMonster.new_random_judge()
-            
+            town_start(user_stats)
+        
         pygame.display.update()
         time.sleep(.01)
     pygame.quit()
@@ -244,7 +228,7 @@ def town_choices():
     print()
     print("What do you choose?:")
 
-def town_start():
+def town_start(user_stats):
     """Prints the home page as the main loop"""
     choice = "r"
 
@@ -253,12 +237,12 @@ def town_start():
         user_choice_int = int(input())
     
         if user_choice_int == 1:
-            battle_map()
+            battle_map(user_stats)
             
         elif user_choice_int == 2:
             user_stats["energy"] += 5
             print(f"Your energy is: {user_stats["energy"]}")
-            town_start()
+            town_start(user_stats)
 
         elif user_choice_int == 3:
             user_shopping()
@@ -290,10 +274,10 @@ print()
 user_data = input("Would you like to start a new project(1) or resume(2)?: ")
 choice = "r"
 if user_data == "1":
-    user_stats = {"energy" : 15, "sparkle" : 350}
+    user_stats = {"energy" : 15, "sparkle" : 350, "location":[0,0]}
     user_inventory = []
     town_welcome()
-    town_start()
+    town_start(user_stats)
 
 elif user_data == "2":
     with open("progress_stats", "r") as progressfile:
@@ -304,7 +288,7 @@ elif user_data == "2":
         user_inventory_convert = json.loads(progressfile.read())
         user_inventory = user_inventory_convert
         
-    town_start()
+    town_start(user_stats)
 
 else:
     print("unregistered command")
