@@ -32,4 +32,22 @@ class WanderingMonster:
             self.value = "blue"
             self.color = (0, 0, 255)
             self.location = [random.randint(0, 9), random.randint(0, 9)]
-        
+
+    def move(self):
+        x_direct = random.randint(-1, 1)
+        y_direct = random.randint(-1, 1)
+        x_locate = self.location[0] + x_direct
+        if x_locate < 0:
+            x_locate = 0
+        elif x_locate > 9:
+            x_locate = 9
+        self.location[0] = x_locate
+        y_locate = self.location[1] + y_direct
+        if y_locate < 0:
+            y_locate = 0
+        elif y_locate > 9:
+            y_locate = 9
+        if(x_locate == 0 and y_locate == 0):
+            x_locate = 1
+        self.location[1] = y_locate
+        self.location[0] = x_locate
