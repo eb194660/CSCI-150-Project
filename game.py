@@ -153,7 +153,10 @@ def battle_map(game_stats):
     mask_surface = pygame.Surface((50,50))
     monsters = []
     town = (300, 300)
-    
+    player_image = pygame.image.load('images/player.png')
+    player_images = pygame.transform.scale(player_image, (32, 32))
+    monster_image = pygame.image.load('images/monster.png')
+    monster_images = pygame.transform.scale(monster_image, (32, 32))
     running = True
     while running:
         if len(monsters) == 0:
@@ -161,11 +164,17 @@ def battle_map(game_stats):
             monsters.append(WanderingMonster())
         screen.fill((0,0,0))
         player.update(coordinate_to_pixel(game_stats["location"]), (32, 32))
-        pygame.draw.rect(screen, (128, 128, 128), player)
+        if (player_images == None):
+            pygame.draw.rect(screen, (128, 128, 128), player)
+        else:
+            screen.blit(player_images, game_stats["location"])
         pygame.draw.circle(screen, (0, 255, 0), town, 20)
         for monster in monsters:
-            pygame.draw.circle(screen, monster.color, coordinate_to_pixel(monster.location), 20)
-  
+            if (monster_images == None):
+                pygame.draw.circle(screen, monster.color, coordinate_to_pixel(monster.location), 20)
+            else:
+                screen.blit(monster_images, coordinate_to_pixel(monster.location))
+                screen.blit(monster_images, coordinate_to_pixel(monster.location))
 
         
         for event in pygame.event.get():
