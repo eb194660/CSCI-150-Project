@@ -164,17 +164,17 @@ def battle_map(game_stats):
             monsters.append(WanderingMonster())
         screen.fill((0,0,0))
         player.update(coordinate_to_pixel(game_stats["location"]), (32, 32))
-        if (player_images == None):
+        try:
+            screen.blit(player_images, coordinate_to_pixel(game_stats["location"]))
+        except FileNotFoundError:
             pygame.draw.rect(screen, (128, 128, 128), player)
-        else:
-            screen.blit(player_images, game_stats["location"])
         pygame.draw.circle(screen, (0, 255, 0), town, 20)
         for monster in monsters:
-            if (monster_images == None):
+            try:
+                screen.blit(monster_images, coordinate_to_pixel(monster.location))
+                screen.blit(monster_images, coordinate_to_pixel(monster.location))
+            except FileNotFoundError:
                 pygame.draw.circle(screen, monster.color, coordinate_to_pixel(monster.location), 20)
-            else:
-                screen.blit(monster_images, coordinate_to_pixel(monster.location))
-                screen.blit(monster_images, coordinate_to_pixel(monster.location))
 
         
         for event in pygame.event.get():
