@@ -10,6 +10,7 @@ user_battle_loop is started and ends when the user flees or dies, return user to
 
 from gamefunctions import *
 from wanderingMonster import *
+import random
 import json
 import math
 import pygame
@@ -45,7 +46,7 @@ def user_shopping():
             print(f"Your remaining sparkles: {user_stats["sparkle"]}")
 
         elif user_train == "studio":
-            town_start()
+            return
 
         else:
             print("unregistered command")
@@ -63,7 +64,7 @@ def user_shopping():
             print("You do not have enough sparkle. Rest or win dance battles to get more sparkle.")
             
         elif user_train == "studio":
-            town_start()
+            return
 
         else:
             print("unregistered command")
@@ -87,7 +88,6 @@ def use_special_item():
                     del user_inventory[0]
                     user_stats["sparkle"] += 3
                     print(f"You have bested the Pros! Your sparkle: {user_stats["sparkle"]}")
-                    town_start()
 
     else:
         print("You do not have special items. Go to store to purchase them.")
@@ -120,7 +120,6 @@ def user_battle():
 
         elif user_action == "3":
             print("Better luck next time, you chassed away.")
-            town_start(user_stats)
             break #ends battle loop
             
 
@@ -129,12 +128,10 @@ def user_battle():
 
     if user_energy <= 0:
         print("You passed out on the dance floor :(")
-        town_start(user_stats)
         
     if pro_energy <= 0:
         user_stats["sparkle"] += 3
         print(f"You have bested {pro_name}! Your sparkle: {user_stats["sparkle"]}")
-        town_start(user_stats)
 
 def coordinate_to_pixel(coordinates):
     return coordinates[0] * 32, coordinates[1] * 32
@@ -153,10 +150,6 @@ def battle_map(game_stats):
     mask_surface = pygame.Surface((50,50))
     monsters = []
     town = (300, 300)
-    player_image = pygame.image.load('images/player.png')
-    player_images = pygame.transform.scale(player_image, (32, 32))
-    monster_image = pygame.image.load('images/monster.png')
-    monster_images = pygame.transform.scale(monster_image, (32, 32))
     running = True
     while running:
         if len(monsters) == 0:
@@ -165,14 +158,21 @@ def battle_map(game_stats):
         screen.fill((0,0,0))
         player.update(coordinate_to_pixel(game_stats["location"]), (32, 32))
         try:
+            player_image = pygame.image.load('images/player.png')
+            player_images = pygame.transform.scale(player_image, (32, 32))
             screen.blit(player_images, coordinate_to_pixel(game_stats["location"]))
+            
         except FileNotFoundError:
             pygame.draw.rect(screen, (128, 128, 128), player)
+            
         pygame.draw.circle(screen, (0, 255, 0), town, 20)
+        
         for monster in monsters:
             try:
+                monster_image = pygame.image.load('images/monster.png')
+                monster_images = pygame.transform.scale(monster_image, (32, 32))
                 screen.blit(monster_images, coordinate_to_pixel(monster.location))
-                screen.blit(monster_images, coordinate_to_pixel(monster.location))
+                
             except FileNotFoundError:
                 pygame.draw.circle(screen, monster.color, coordinate_to_pixel(monster.location), 20)
 
@@ -182,31 +182,28 @@ def battle_map(game_stats):
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    monsters[0].move()
                     if user_stats["location"][1] > 0:
                         user_stats["location"][1] -= 1
                 elif event.key == pygame.K_DOWN:
-                    monsters[0].move()
                     if user_stats["location"][1] < 9:
                         user_stats["location"][1] += 1
                 elif event.key == pygame.K_LEFT:
-                    monsters[1].move()
                     if user_stats["location"][0] > 0:
                         user_stats["location"][0] -= 1
                 elif event.key == pygame.K_RIGHT:
-                    monsters[1].move()
                     if user_stats["location"][0] < 9:
                         user_stats["location"][0] += 1
+                for i, monster in enumerate(monsters):
+                    if user_stats["location"] == monster.location:
+                        del monsters[i]
+                        user_battle()
+                for monster in monsters:
+                    if random.random() > .5:
+                        monster.move()
+        
                 
-        if user_stats["location"] == monsters[0].location:
-            del monsters[0]
-            user_battle()
-        elif user_stats["location"] == monsters[1].location:
-            del monsters[1]
-            user_battle()
-        elif user_stats["location"] == [9, 9]:
-            pygame.quit()
-            town_start(user_stats)
+        if user_stats["location"] == [9, 9]:
+            running = False
         
         pygame.display.update()
         time.sleep(.01)
@@ -255,7 +252,6 @@ def town_start(user_stats):
         elif user_choice_int == 2:
             user_stats["energy"] += 5
             print(f"Your energy is: {user_stats["energy"]}")
-            town_start(user_stats)
 
         elif user_choice_int == 3:
             user_shopping()
