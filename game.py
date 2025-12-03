@@ -15,6 +15,17 @@ import json
 import math
 import pygame
 import time
+from pygame import mixer
+
+def play_music():
+    pygame.mixer.init()
+    try:
+        mixer.music.load('sounds/intro.mp3')
+        mixer.music.play()
+    except FileNotFoundError:
+        return None
+    except pygame.error:
+        return None
 
 def user_shopping():
     """Allows user to purchase inventory items"""
@@ -272,7 +283,7 @@ def town_start(user_stats):
             print("That is not an option, please choose 1, 2, 3, or 4.")
 
 #starts user interface
-
+play_music()
 user_name = input("What is your name?:")
 print()
 print_welcome(name = user_name, width = 40)
