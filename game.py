@@ -15,8 +15,6 @@ import json
 import math
 import pygame
 import time
-    
-    
 
 def user_shopping():
     """Allows user to purchase inventory items"""
